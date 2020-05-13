@@ -4,11 +4,11 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'apis/trips'
+      - 'apis/trips/**'
   pull_request:
     branches: [ master ]
     paths:
-      - 'apis/trips'
+      - 'apis/trips/**'
 jobs:
 
   build:
