@@ -67,7 +67,9 @@ This updates the `fuelConsumption` and `hardStops` fields from the user created 
 
 ```bash
 curl -X PATCH --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{ \ 
-  "fuelConsumption":20, \ 
+  "fuelConsumption":20, \ s
   "hardStops":74371 \ 
 }
 ```
+
+### Add Docker Build
