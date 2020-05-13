@@ -2,11 +2,15 @@ name: .NET Core
 
 on:
   push:
+    branches:
+      - master
     paths:
-      - master/apis/poi
+      - /apis/poi
   pull_request:
+    branches:
+      - master
     paths:
-      - master/apis/poi
+      - /apis/poi
 
 jobs:
   build:
@@ -21,7 +25,9 @@ jobs:
         dotnet-version: 3.1.101
     - name: Install dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal
+    - name: Build and Test
+      run: |
+        dotnet build --configuration Release --no-restore
+        dotnet test --no-restore --verbosity normal
+      working-directory: apis/poi
+
