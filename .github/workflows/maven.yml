@@ -45,6 +45,5 @@ jobs:
         repository: devopsoh/api-user-java
         registry: openhackq811qdi1acr.azurecr.io
         dockerfile: apis/user-java/Dockerfile
-        path: apis/user-java
         tag_with_ref: true
         tag_with_sha: true
