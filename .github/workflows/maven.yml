@@ -9,7 +9,9 @@ on:
     paths: 
       - 'apis/user-java/**'
   pull_request:
-    branches: [ '*' ]
+    branches:  [ master ]
+    paths: 
+      - 'apis/user-java/**'
 
 jobs:
   test:
