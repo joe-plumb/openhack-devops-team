@@ -36,6 +36,7 @@ jobs:
     name: user-java docker build
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
     - name: docker build and push
       uses: docker/build-push-action@v1.1.0
       with:
