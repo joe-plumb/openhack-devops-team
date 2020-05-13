@@ -10,6 +10,10 @@ on:
     paths: 
       - 'apis/poi/**'
 
+defaults:
+  run:
+    working-directory: 'apis/poi/'
+
 jobs:
   build:
 
@@ -27,4 +31,5 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: dotnet test --no-restore --verbosity normal
+      working-directory: apis/poi/tests/UnitTests
 
