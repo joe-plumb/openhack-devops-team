@@ -35,7 +35,6 @@ jobs:
   build:
     name: user-java docker build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
     steps:
     - name: docker build and push
       uses: docker/build-push-action@v1.1.0
