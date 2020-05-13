@@ -65,6 +65,7 @@ jobs:
   deploy:
     name: user-java deploy
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: build
     steps:
     - name: 'Login via Azure CLI'
