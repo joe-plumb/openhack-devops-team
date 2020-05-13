@@ -2,15 +2,13 @@ name: .NET Core
 
 on:
   push:
-    branches:
-      - 'master'
-    paths:
-      - 'apis/poi'
+    branches: [ master ]
+    paths: 
+      - 'apis/poi/**'
   pull_request:
-    branches:
-      - 'master'
-    paths:
-      - 'apis/poi'
+    branches: [ master ]
+    paths: 
+      - 'apis/poi/**'
 
 jobs:
   build:
@@ -18,16 +16,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
     - name: Install dependencies
       run: dotnet restore
-    - name: Build and Test
-      run: |
-        dotnet build --configuration Release --no-restore
-        dotnet test --no-restore --verbosity normal
-      working-directory: apis/poi
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal
 
