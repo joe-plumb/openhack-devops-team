@@ -13,12 +13,11 @@ on:
     paths: 
       - 'apis/user-java/**'
 
-defaults:
-  run:
-    working-directory: apis/user-java
-
 jobs:
   test:
+    defaults:
+      run:
+        working-directory: apis/user-java
     name: user-java unit test
     if: github.ref != 'refs/heads/master'
     runs-on: ubuntu-latest
