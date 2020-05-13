@@ -5,8 +5,10 @@ name: Node.js Build validation
 
 on:
   pull_request:
-    branches: [ master ]
-    paths: [ apis/userprofile ]
+    branches: 
+    - master
+    paths: 
+    - 'apis/userprofile'
 
 jobs:
   build:
