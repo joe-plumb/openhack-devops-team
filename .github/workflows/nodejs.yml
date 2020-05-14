@@ -11,6 +11,7 @@ env:
   staging-slot: staging
   staging-url: https://openhackq811qdi1userprofile-staging.azurewebsites.net
   prod-slot: production
+  resource-group: openhackq811qdi1rg
     
 on:
   push:
@@ -106,3 +107,13 @@ jobs:
     needs: check-staging
     steps:
       - uses: actions/checkout@v2
+      - name: "Login via Azure CLI"
+        uses: azure/login@v1.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure CLI Action
+        uses: Azure/cli@v1.0.0
+        with:
+          # https://docs.microsoft.com/en-us/cli/azure/webapp/deployment/slot?view=azure-cli-latest#az-webapp-deployment-slot-swap
+          inlineScript: az webapp deployment slot swap -g ${{ env.resource-group }} -n {{ env.appname }} --slot staging --target-slot production
+
