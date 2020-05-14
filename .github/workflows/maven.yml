@@ -10,12 +10,12 @@ on:
       - 'mattw/**'
     paths:
       - "apis/user-java/**"
-      - .github/workflows/maven.yaml
+      - .github/workflows/maven.yml
   pull_request:
     branches: [master]
     paths:
       - "apis/user-java/**"
-      - .github/workflows/maven.yaml
+      - .github/workflows/maven.yml
 
 jobs:
   test:
