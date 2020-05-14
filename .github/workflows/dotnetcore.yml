@@ -21,7 +21,7 @@ env:
   staging-slot: staging
   staging-url: https://openhackq811qdi1poi-staging.azurewebsites.net/
   prod-slot: production
-  resource-group: openhackq811qdi1rg
+  resource_group: openhackq811qdi1rg
 
 jobs:
   test:
