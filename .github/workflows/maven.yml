@@ -73,4 +73,24 @@ jobs:
           app-name: "openhackq811qdi1userjava"
           #images: "openhackq811qdi1acr.azurecr.io/devopsoh/api-user-java:${{ github.run_number }}" HACK below
           images: "openhackq811qdi1acr.azurecr.io/devopsoh/api-user-java:changeme"
-          slot-name: production
+          slot-name: staging
+      - name: Check status of service
+        run: |
+          echo "Checking Service State..."
+          service_state=$( curl https://openhackq811qdi1userjava-staging.azurewebsites.net/api/healthcheck/user-java | jq -r .status)
+          while [ $service_state != "healthy" ]
+          do
+            sleep 5
+            service_state=$( curl https://openhackq811qdi1userjava-staging.azurewebsites.net/api/healthcheck/user-java | jq -r .status)
+            echo "service state: $service_state"
+          done
+          if [ $service_state == "healthy" ]
+          then
+            exit 0
+          else
+            exit 1
+          fi
+      - name: Swap slots
+        uses: azure/CLI@v1
+        inlineScript: |
+          az webapp deployment slot swap  -g openhackq811qdi1rg -n openhackq811qdi1userjava --slot staging --target-slot production
