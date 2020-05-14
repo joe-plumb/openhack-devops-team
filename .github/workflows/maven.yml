@@ -7,7 +7,6 @@ on:
   push:
     branches: 
       - master
-      - 'mattw/**'
     paths:
       - "apis/user-java/**"
       - .github/workflows/maven.yml
@@ -23,7 +22,7 @@ jobs:
       run:
         working-directory: apis/user-java
     name: user-java unit test
-    #if: github.event_name == 'pull_request' && github.ref != 'refs/heads/master'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -39,8 +38,8 @@ jobs:
   build:
     name: user-java docker build
     runs-on: ubuntu-latest
-    #if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    #needs: test ##used for action development
     steps:
       - uses: actions/checkout@v2
       - name: docker build and push
@@ -58,7 +57,7 @@ jobs:
   deploy:
     name: user-java deploy
     runs-on: ubuntu-latest
-    #if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: build
     steps:
       - name: "Login via Azure CLI"
@@ -69,4 +68,4 @@ jobs:
         with:
           app-name: "openhackq811qdi1userjava"
           images: "openhackq811qdi1acr.azurecr.io/devopsoh/api-user-java:sha-${{ github.sha }}"
-          slot-name: staging
+          slot-name: production
