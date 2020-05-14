@@ -56,5 +56,5 @@ jobs:
         registry: openhackq811qdi1acr.azurecr.io
         dockerfile: apis/userprofile/Dockerfile
         path: apis/userprofile
-        tags: $GITHUB_RUN_NUMBER
+        tags: GITHUB_RUN_NUMBER
         
