@@ -51,8 +51,9 @@ jobs:
           registry: openhackq811qdi1acr.azurecr.io
           dockerfile: apis/user-java/Dockerfile
           path: apis/user-java
-          tag_with_ref: true
+          tag_with_ref: false
           tag_with_sha: true
+          tags: ${{ github.run_number }}
 
   deploy:
     name: user-java deploy
@@ -70,5 +71,6 @@ jobs:
       - uses: azure/webapps-deploy@v2
         with:
           app-name: "openhackq811qdi1userjava"
-          images: "openhackq811qdi1acr.azurecr.io/devopsoh/api-user-java:sha-${{ env.short_sha }}"
+         #images: "openhackq811qdi1acr.azurecr.io/devopsoh/api-user-java:${{ github.run_number }}" HACK below
+          images: "openhackq811qdi1acr.azurecr.io/devopsoh/api-user-java:changeme
           slot-name: production
