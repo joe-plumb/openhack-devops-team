@@ -5,13 +5,16 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ master ]
-    paths: 
-      - 'apis/user-java/**'
+    branches: 
+      - master
+    paths:
+      - "apis/user-java/**"
+      - .github/workflows/maven.yml
   pull_request:
-    branches: [ master ]
-    paths: 
-      - 'apis/user-java/**'
+    branches: [master]
+    paths:
+      - "apis/user-java/**"
+      - .github/workflows/maven.yml
 
 jobs:
   test:
@@ -19,32 +22,50 @@ jobs:
       run:
         working-directory: apis/user-java
     name: user-java unit test
-    if: github.ref != 'refs/heads/master'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.8
-    - name: Build with Maven
-      run: |
-        mvn clean install
-        mvn test
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Build with Maven
+        run: |
+          mvn clean install
+          mvn test
 
   build:
     name: user-java docker build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    #needs: test ##used for action development
     steps:
-    - name: docker build and push
-      uses: docker/build-push-action@v1.1.0
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        repository: devopsoh/api-user-java
-        registry: openhackq811qdi1acr.azurecr.io
-        dockerfile: apis/user-java/Dockerfile
-        path: apis/user-java
-        tag_with_ref: true
-        tag_with_sha: true
+      - uses: actions/checkout@v2
+      - name: docker build and push
+        uses: docker/build-push-action@v1.1.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: devopsoh/api-user-java
+          registry: openhackq811qdi1acr.azurecr.io
+          dockerfile: apis/user-java/Dockerfile
+          path: apis/user-java
+          tag_with_ref: true
+          tag_with_sha: true
+
+  deploy:
+    name: user-java deploy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: build
+    steps:
+      - name: "Login via Azure CLI"
+        uses: azure/login@v1.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: azure/webapps-deploy@v2
+        with:
+          app-name: "openhackq811qdi1userjava"
+          images: "openhackq811qdi1acr.azurecr.io/devopsoh/api-user-java:sha-${{ github.sha }}"
+          slot-name: production
