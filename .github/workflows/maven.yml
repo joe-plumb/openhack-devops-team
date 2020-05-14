@@ -62,7 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Get short SHA
-        run: echo "::set-env name=short_sha::$(git rev-parse --short=6 HEAD)"
+        run: echo "::set-env name=short_sha::$(git rev-parse --short=7 HEAD)"
       - name: "Login via Azure CLI"
         uses: azure/login@v1.1
         with:
