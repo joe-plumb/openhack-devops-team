@@ -5,11 +5,12 @@ on:
     branches: [ master ]
     paths:
       - 'apis/trips/**'
+      - .github/workflows/go.yml
   pull_request:
     branches: [ master ]
     paths:
       - 'apis/trips/**'
-
+      - .github/workflows/go.yml
 defaults:
   run:
     working-directory: apis/trips
@@ -56,6 +57,7 @@ jobs:
         dockerfile: apis/trips/Dockerfile
         path: apis/trips
         tag_with_sha: true
+        tags: ${{ github.run_number }}
   deploy:
     name: Trips API Deployment
     runs-on: ubuntu-latest
@@ -74,4 +76,25 @@ jobs:
           app-name: "openhackq811qdi1trips"
           slot-name: "staging" 
           images: "openhackq811qdi1acr.azurecr.io/devopsoh/api-trips:sha-${{ env.short_sha }}"
-          slot-name: production 
+      - name: Check status of service
+        run: |
+          echo "Checking Service State..."
+          service_state=$( curl https://openhackq811qdi1trips-staging.azurewebsites.net/api/healthcheck/trips | jq -r .status)
+          while [ $service_state != "Healthy" ]
+          do
+            sleep 5
+            service_state=$( curl https://openhackq811qdi1trips-staging.azurewebsites.net/api/healthcheck/trips | jq -r .status)
+            echo "service state: $service_state"
+          done
+          if [ $service_state == "Healthy" ]
+          then
+            exit 0
+          else
+            exit 1
+          fi
+      - name: Swap slots
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.0.72
+          inlineScript: |
+            az webapp deployment slot swap  -g openhackq811qdi1rg -n openhackq811qdi1trips --slot staging --target-slot production
