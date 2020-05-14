@@ -1,5 +1,7 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+# Github Actions help: https://help.github.com/en/actions
+# Expressions and context: https://help.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions
+# Creating a workflow: https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow
+# Using variables and secrets: https://help.github.com/en/actions/configuring-and-managing-workflows/using-variables-and-secrets-in-a-workflow
 
 name: Userprofile CI/CD
 
@@ -39,6 +41,7 @@ jobs:
         node-version: [10.x, 12.x]
 
     name: build validation
+    # https://help.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions
     if: github.event_name == 'pull_request'
     steps:
     - uses: actions/checkout@v2
