@@ -53,3 +53,21 @@ jobs:
           path: apis/poi/web
           tag_with_ref: true
           tag_with_sha: true
+  deploy:
+    name: POI API Deployment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get short SHA
+        run: echo "::set-env name=short_sha::$(git rev-parse --short=7 HEAD)"
+      - name: "Login via Azure CLI"
+        uses: azure/login@v1.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: azure/webapps-deploy@v2
+        with:
+          app-name: "openhackq811qdi1poi"
+          images: "openhackq811qdi1acr.azurecr.io/devopsoh/api-poi:sha-${{ env.short_sha }}"
+          slot-name: production 
