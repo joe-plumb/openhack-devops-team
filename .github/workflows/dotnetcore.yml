@@ -13,12 +13,8 @@ on:
     paths: 
       - 'apis/poi/**'
 
-defaults:
-  run:
-    working-directory: 'apis/poi/'
-
 env:
-  working_directory: apis/poi
+  working_directory: apis/poi/web
   repo: devopsoh/api-poi
   acr: openhackq811qdi1acr.azurecr.io
   appname: openhackq811qdi1poi
