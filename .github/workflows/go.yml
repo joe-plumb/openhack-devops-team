@@ -72,5 +72,6 @@ jobs:
       - uses: azure/webapps-deploy@v2
         with:
           app-name: "openhackq811qdi1trips"
+          slot-name: "staging" 
           images: "openhackq811qdi1acr.azurecr.io/devopsoh/api-trips:sha-${{ env.short_sha }}"
           slot-name: production 
