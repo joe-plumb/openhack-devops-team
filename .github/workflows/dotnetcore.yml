@@ -7,6 +7,7 @@ on:
       - 'mattw/**'
     paths: 
       - 'apis/poi/**'
+      - '.github/workflows/dotnetcore.yml'
   pull_request:
     branches: [ master ]
     paths: 
