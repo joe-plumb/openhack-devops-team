@@ -60,6 +60,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: build
     steps:
+      - uses: actions/checkout@v2
       - name: "Login via Azure CLI"
         uses: azure/login@v1.1
         with:
