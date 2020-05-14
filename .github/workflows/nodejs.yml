@@ -1,8 +1,17 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Node.js Build validation
+name: Userprofile CI/CD
 
+env:
+  working_directory: apis/userprofile
+  repo: devopsoh/api-userprofile
+  acr: openhackq811qdi1acr.azurecr.io
+  appname: openhackq811qdi1userprofile
+  staging-slot: staging
+  staging-url: https://openhackq811qdi1userprofile-staging.azurewebsites.net
+  prod-slot: production
+    
 on:
   push:
     branches: 
@@ -16,11 +25,11 @@ on:
     paths: 
     - 'apis/userprofile/**'
 
-jobs:
+jobs:     
   test:
     defaults:
       run:
-        working-directory: apis/userprofile
+        working-directory: ${{ env.working_directory }}
 
     runs-on: ubuntu-latest
     
@@ -28,7 +37,7 @@ jobs:
       matrix:
         node-version: [10.x, 12.x]
 
-    name: userprofile unit tests
+    name: build validation
     if: github.event_name == 'pull_request'
     steps:
     - uses: actions/checkout@v2
@@ -43,7 +52,7 @@ jobs:
         npm test
   
   build:
-    name: userprofile docker build & push
+    name: docker build & push to acr
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
@@ -53,14 +62,14 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        repository: devopsoh/api-userprofile
-        registry: openhackq811qdi1acr.azurecr.io
-        dockerfile: apis/userprofile/Dockerfile
-        path: apis/userprofile
+        repository: ${{ env.repo }}
+        registry: ${{ env.acr }}
+        dockerfile: ${{ env.working_directory }}/Dockerfile
+        path: ${{ env.working_directory }}
         tags: ${{ github.run_number }}
   
   deploy:
-    name: userprofile deploy
+    name: deploy to staging
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: build
@@ -72,7 +81,28 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - uses: azure/webapps-deploy@v2
         with:
-          app-name: "openhackq811qdi1userprofile"
-          images: "openhackq811qdi1acr.azurecr.io/devopsoh/api-userprofile:${{ github.run_number }}"
-          slot-name: production
-        
+          app-name: "${{ env.appname }}"
+          images: "${{ env.acr }}/${{ env.devopsoh/api-userprofile }}:${{ github.run_number }}"
+          slot-name: ${{ env.staging-slot }}
+          
+  check-staging:
+    name: check staging environment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: deploy
+    continue-on-error: true
+    steps:
+      - name: URL Health Check
+        uses: Jtalk/url-health-check-action@v1.3
+        with:
+          url: ${{ env.staging-url }}
+          max-attempts: 2
+          retry-delay: 5s
+  
+  swap-slots:
+    name: swap staging and production slots
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: check-staging
+    steps:
+      - uses: actions/checkout@v2
