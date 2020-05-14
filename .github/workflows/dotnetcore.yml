@@ -35,11 +35,10 @@ jobs:
     - name: Test
       run: dotnet test --no-restore --verbosity normal
       working-directory: apis/poi/tests/UnitTests
-	  
   build:
     name: poi api docker build
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     #needs: test ##used for action development
     steps:
       - uses: actions/checkout@v2
