@@ -2,7 +2,9 @@ name: .NET Core
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - 'mattw/**'
     paths: 
       - 'apis/poi/**'
   pull_request:
@@ -14,11 +16,21 @@ defaults:
   run:
     working-directory: 'apis/poi/'
 
+env:
+  working_directory: apis/poi
+  repo: devopsoh/api-poi
+  acr: openhackq811qdi1acr.azurecr.io
+  appname: openhackq811qdi1poi
+  staging-slot: staging
+  staging-url: https://openhackq811qdi1poi-staging.azurewebsites.net/
+  prod-slot: production
+  resource-group: openhackq811qdi1rg
+
 jobs:
   test:
     defaults:
-       run:
-        working-directory: apis/poi
+      run:
+        working-directory: ${{ env.working_directory }}
     name: POI API Unit Test
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -47,16 +59,18 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: devopsoh/api-poi
-          registry: openhackq811qdi1acr.azurecr.io
-          dockerfile: apis/poi/web/Dockerfile
-          path: apis/poi/web
-          tag_with_ref: true
+          repository: ${{ env.repo }}
+          registry: ${{ env.acr }}
+          dockerfile:  ${{ env.working_directory }}/Dockerfile
+          path: ${{ env.working_directory }}
+          tag_with_ref: false
           tag_with_sha: true
+          tags: ${{ github.run_number }}
+  
   deploy:
     name: POI API Deployment
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' #&& github.ref == 'refs/heads/master'
     needs: build
     steps:
       - uses: actions/checkout@v2
@@ -68,6 +82,38 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - uses: azure/webapps-deploy@v2
         with:
-          app-name: "openhackq811qdi1poi"
-          images: "openhackq811qdi1acr.azurecr.io/devopsoh/api-poi:sha-${{ env.short_sha }}"
-          slot-name: production 
+          app-name: "${{ env.appname }}"
+          images: "${{ env.acr }}/${{ env.repo }}:${{ github.run_number }}"
+          slot-name: ${{ env.staging-slot }} 
+
+  check-staging:
+    name: check staging environment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' #&& github.ref == 'refs/heads/master'
+    needs: deploy
+    continue-on-error: true
+    steps:
+      - name: URL Health Check
+        uses: Jtalk/url-health-check-action@v1.3
+        with:
+          url: ${{ env.staging-url }}api/healthcheck/poi
+          max-attempts: 10
+          retry-delay: 10s
+
+  swap-slots:
+    name: swap staging and production slots
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' #&& github.ref == 'refs/heads/master'
+    needs: check-staging
+    steps:
+      - name: "Login via Azure CLI"
+        uses: azure/login@v1.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: swap slots
+        run: |
+          az webapp deployment slot swap \
+            -g ${{ env.resource_group }} \
+            -n ${{ env.appname  }} \
+            --slot ${{ env.staging-slot }} \
+            --target-slot ${{ env.prod-slot }}
