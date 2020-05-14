@@ -49,7 +49,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: devopsoh/api-poi
           registry: openhackq811qdi1acr.azurecr.io
-          dockerfile: apis/poi/Dockerfile
-          path: apis/poi
+          dockerfile: apis/poi/web/Dockerfile
+          path: apis/poi/web
           tag_with_ref: true
           tag_with_sha: true
