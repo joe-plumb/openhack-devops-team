@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - 'mattw/**'
     paths: 
       - 'apis/poi/**'
       - '.github/workflows/dotnetcore.yml'
@@ -48,7 +47,7 @@ jobs:
   build:
     name: poi api docker build
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' #&& github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     #needs: test ##used for action development
     steps:
       - uses: actions/checkout@v2
@@ -68,7 +67,7 @@ jobs:
   deploy:
     name: POI API Deployment
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' #&& github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: build
     steps:
       - uses: actions/checkout@v2
@@ -85,9 +84,9 @@ jobs:
           slot-name: ${{ env.staging-slot }} 
 
   check-staging:
-    name: check staging environment
+    name: Check staging
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' #&& github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: deploy
     continue-on-error: true
     steps:
@@ -99,9 +98,9 @@ jobs:
           retry-delay: 10s
 
   swap-slots:
-    name: swap staging and production slots
+    name: Swap slots
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' #&& github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: check-staging
     steps:
       - name: "Login via Azure CLI"
