@@ -92,5 +92,7 @@ jobs:
           fi
       - name: Swap slots
         uses: azure/CLI@v1
-        inlineScript: |
-          az webapp deployment slot swap  -g openhackq811qdi1rg -n openhackq811qdi1userjava --slot staging --target-slot production
+        with:
+          azcliversion: 2.0.72
+          inlineScript: |
+            az webapp deployment slot swap  -g openhackq811qdi1rg -n openhackq811qdi1userjava --slot staging --target-slot production
