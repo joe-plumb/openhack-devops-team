@@ -61,6 +61,8 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v2
+      - name: Get short SHA
+        run: echo "::set-env name=short_sha::$(git rev-parse --short=6 HEAD)"
       - name: "Login via Azure CLI"
         uses: azure/login@v1.1
         with:
@@ -68,5 +70,5 @@ jobs:
       - uses: azure/webapps-deploy@v2
         with:
           app-name: "openhackq811qdi1userjava"
-          images: "openhackq811qdi1acr.azurecr.io/devopsoh/api-user-java:sha-${{ github.sha }}"
+          images: "openhackq811qdi1acr.azurecr.io/devopsoh/api-user-java:sha-${{ env.short_sha }}"
           slot-name: production
